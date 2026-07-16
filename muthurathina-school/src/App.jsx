@@ -1,15 +1,12 @@
-import Header from "./components/Header";
-import Hero from "./components/Hero";
-import UpcomingEvents from "./components/UpcomingEvents";
-import StatsBar from "./components/StatsBar";
+import Navbar from "./components/Navbar";
 
-export default function App() {
+function App() {
   return (
-    <div className="min-h-screen font-body bg-[#F4F6FA]">
-      <Header />
-      <Hero />
-      <UpcomingEvents />
-      <StatsBar />
-    </div>
+    <>
+      <Navbar />
+      {/* rest of your page */}
+    </>
   );
 }
+
+export default App;
