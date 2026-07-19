@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useLayoutEffect, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import logo from "../assets/logo.png";
 import "./Navbar.css";
 
@@ -54,108 +54,61 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [active, setActive] = useState("HOME");
-  const [progress, setProgress] = useState(0);
-  const [indicator, setIndicator] = useState({ left: 0, width: 0, ready: false });
-  const [hover, setHover] = useState(null);
   const [mobileAccordion, setMobileAccordion] = useState(null);
 
-  const linksRef = useRef(null);
-  const itemRefs = useRef({});
-
-  /* ---------- scroll progress + sticky shadow ---------- */
+  /* ---------- Hysteresis Sticky Scroll Handler ---------- */
   useEffect(() => {
-    const onScroll = () => {
-      // Hysteresis: enter "scrolled" state past 80px, only leave it below 30px.
-      // A single shared threshold (e.g. > 40) causes a feedback loop: crossing it
-      // collapses the top bar, which shrinks the navbar and shifts the page content
-      // up, which the browser's scroll anchoring "corrects" by nudging scrollY back
-      // below the threshold, which re-expands the top bar, which pushes scrollY back
-      // over it again — flickering every frame. Separating the on/off thresholds
-      // breaks that loop.
-      setScrolled((prev) => {
+    const handleScroll = () => {
+      setScrolled((prevScrolled) => {
         if (window.scrollY > 80) return true;
         if (window.scrollY < 30) return false;
-        return prev;
+        return prevScrolled;
       });
-      const doc = document.documentElement;
-      const max = doc.scrollHeight - doc.clientHeight;
-      setProgress(max > 0 ? (window.scrollY / max) * 100 : 0);
     };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  /* ---------- lock body scroll when mobile drawer is open ---------- */
+  /* ---------- Mobile Layout Scroll-Lock Window Fix ---------- */
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
     if (!menuOpen) setMobileAccordion(null);
   }, [menuOpen]);
 
-  /* ---------- scrollspy: auto-highlight the section in view ---------- */
+  /* ---------- Pure Intersection ScrollSpy Setup ---------- */
   useEffect(() => {
-    const sections = NAV_LINKS.map((l) => document.querySelector(l.href)).filter(Boolean);
-    if (!sections.length) return;
+    const targetSections = NAV_LINKS.map(link => document.querySelector(link.href)).filter(Boolean);
+    if (!targetSections.length) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const match = NAV_LINKS.find((l) => `#${entry.target.id}` === l.href);
-            if (match) setActive(match.label);
+            const matchedLink = NAV_LINKS.find(link => `#${entry.target.id}` === link.href);
+            if (matchedLink) setActive(matchedLink.label);
           }
         });
       },
-      { rootMargin: "-35% 0px -55% 0px", threshold: 0 }
+      { rootMargin: "-40% 0px -50% 0px", threshold: 0 }
     );
 
-    sections.forEach((s) => observer.observe(s));
+    targetSections.forEach(section => observer.observe(section));
     return () => observer.disconnect();
   }, []);
 
-  /* ---------- measure the active tab so the pill can glide to it ---------- */
-  const measureIndicator = useCallback(() => {
-    const container = linksRef.current;
-    const activeEl = itemRefs.current[active];
-    if (!container || !activeEl) return;
-    const containerRect = container.getBoundingClientRect();
-    const elRect = activeEl.getBoundingClientRect();
-    setIndicator({
-      left: elRect.left - containerRect.left,
-      width: elRect.width,
-      ready: true,
-    });
-  }, [active]);
-
-  useLayoutEffect(() => {
-    measureIndicator();
-  }, [measureIndicator]);
-
-  useEffect(() => {
-    window.addEventListener("resize", measureIndicator);
-    return () => window.removeEventListener("resize", measureIndicator);
-  }, [measureIndicator]);
-
-  const handleClick = (label) => {
+  const handleLinkClick = (label) => {
     setActive(label);
     setMenuOpen(false);
   };
 
-  const handleItemHover = (label, e) => {
-    const container = linksRef.current;
-    if (!container) return;
-    const containerRect = container.getBoundingClientRect();
-    const elRect = e.currentTarget.getBoundingClientRect();
-    setHover({ left: elRect.left - containerRect.left, width: elRect.width });
-  };
-
   const toggleMobileAccordion = (label) => {
-    setMobileAccordion((cur) => (cur === label ? null : label));
+    setMobileAccordion(current => (current === label ? null : label));
   };
 
   return (
     <header className={`navbar ${scrolled ? "navbar--scrolled" : ""}`}>
-      {/* TOP UTILITY INFORMATION STRIP */}
+      {/* TOP strip */}
       <div className="navbar__top-bar">
         <div className="navbar__top-inner">
           <div className="navbar__top-info">
@@ -180,12 +133,12 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* HEADER SECTION Container */}
+      {/* CORE NAVBAR WRAPPER */}
       <div className="navbar__inner">
-        <a href="#home" className="navbar__brand" onClick={() => handleClick("HOME")}>
-          <span className="navbar__logo-wrap">
+        <a href="#home" className="navbar__brand" onClick={() => handleLinkClick("HOME")}>
+          <div className="navbar__logo-wrap">
             <img src={logo} alt="School Logo" className="navbar__logo" />
-          </span>
+          </div>
           <div className="navbar__brand-text">
             <h1 className="navbar__title">MUTHU RATHINA</h1>
             <h2 className="navbar__subtitle">ARANGAM HIGHER SECONDARY SCHOOL</h2>
@@ -193,43 +146,14 @@ export default function Navbar() {
           </div>
         </a>
 
-        {/* PRIMARY FLEX MAIN NAVIGATION */}
-        <nav
-          className="navbar__links"
-          aria-label="Primary"
-          ref={linksRef}
-          onMouseLeave={() => setHover(null)}
-        >
-          <span
-            className="navbar__hover-pill"
-            style={{
-              transform: `translateX(${hover ? hover.left : 0}px)`,
-              width: hover ? hover.width : 0,
-              opacity: hover ? 1 : 0,
-            }}
-            aria-hidden="true"
-          />
-          <span
-            className="navbar__indicator"
-            style={{
-              transform: `translateX(${indicator.left}px)`,
-              width: indicator.width,
-              opacity: indicator.ready ? 1 : 0,
-            }}
-            aria-hidden="true"
-          />
-
+        {/* PRIMARY IN-LINE DESKTOP LINKS */}
+        <nav className="navbar__links" aria-label="Primary">
           {NAV_LINKS.map((link) => (
-            <div
-              key={link.label}
-              className="navbar__item"
-              ref={(el) => (itemRefs.current[link.label] = el)}
-              onMouseEnter={(e) => handleItemHover(link.label, e)}
-            >
+            <div key={link.label} className="navbar__item">
               <a
                 href={link.href}
                 className={`navbar__link ${active === link.label ? "navbar__link--active" : ""}`}
-                onClick={() => handleClick(link.label)}
+                onClick={() => handleLinkClick(link.label)}
                 aria-current={active === link.label ? "page" : undefined}
                 aria-haspopup={link.hasDropdown ? "true" : undefined}
               >
@@ -242,15 +166,15 @@ export default function Navbar() {
 
               {link.hasDropdown && link.submenu && (
                 <div className="navbar__dropdown" role="menu">
-                  {link.submenu.map((item) => (
+                  {link.submenu.map((subItem) => (
                     <a
-                      key={item}
+                      key={subItem}
                       href={link.href}
                       role="menuitem"
                       className="navbar__dropdown-item"
-                      onClick={() => handleClick(link.label)}
+                      onClick={() => handleLinkClick(link.label)}
                     >
-                      {item}
+                      {subItem}
                     </a>
                   ))}
                 </div>
@@ -260,11 +184,11 @@ export default function Navbar() {
         </nav>
 
         <a href="#admissions" className="navbar__cta">
-          <span className="navbar__cta-label">ENQUIRY</span>
-          <span className="navbar__cta-arrow" aria-hidden="true">&rarr;</span>
+          <span>ENQUIRY</span>
+          <span aria-hidden="true">&rarr;</span>
         </a>
 
-        {/* BURGER BOX RESPONSIVE INTERACTION */}
+        {/* MOBILE TABLET TRIGGER BURGER */}
         <button
           className={`navbar__burger ${menuOpen ? "navbar__burger--open" : ""}`}
           aria-label="Toggle navigation menu"
@@ -277,18 +201,17 @@ export default function Navbar() {
         </button>
       </div>
 
-      <div className="navbar__progress" style={{ width: `${progress}%` }} aria-hidden="true" />
       <div className={`navbar__overlay ${menuOpen ? "navbar__overlay--open" : ""}`} onClick={() => setMenuOpen(false)} />
 
-      {/* DRAWER RESPONSIVE DROPDOWN PANEL */}
+      {/* MOBILE VERTICAL SLIDE DRAWER */}
       <div className={`navbar__mobile ${menuOpen ? "navbar__mobile--open" : ""}`}>
-        {NAV_LINKS.map((link, i) => (
-          <div className="navbar__mobile-item" key={link.label} style={{ transitionDelay: `${i * 0.04}s` }}>
+        {NAV_LINKS.map((link) => (
+          <div className="navbar__mobile-item" key={link.label}>
             <div className="navbar__mobile-link-row">
               <a
                 href={link.href}
                 className={`navbar__mobile-link ${active === link.label ? "navbar__mobile-link--active" : ""}`}
-                onClick={() => handleClick(link.label)}
+                onClick={() => handleLinkClick(link.label)}
               >
                 {link.icon}
                 {link.label}
@@ -307,9 +230,9 @@ export default function Navbar() {
 
             {link.hasDropdown && link.submenu && (
               <div className={`navbar__mobile-submenu ${mobileAccordion === link.label ? "navbar__mobile-submenu--open" : ""}`}>
-                {link.submenu.map((item) => (
-                  <a key={item} href={link.href} onClick={() => handleClick(link.label)}>
-                    {item}
+                {link.submenu.map((subItem) => (
+                  <a key={subItem} href={link.href} onClick={() => handleLinkClick(link.label)}>
+                    {subItem}
                   </a>
                 ))}
               </div>

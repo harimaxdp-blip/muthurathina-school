@@ -5,7 +5,7 @@
   --mr-ink: #241417;
   --mr-gray: #6b6468;
   --mr-line: #e3e3e3;
-  --mr-navbar-height: 160px; /* approx. total height of the sticky navbar (top bar + main row) */
+  --mr-navbar-height: 160px;
 }
 
 * {
@@ -14,22 +14,10 @@
   padding: 0;
 }
 
-/* Smooth animated scroll instead of an instant jump */
 html {
   scroll-behavior: smooth;
 }
 
-/* Stops the browser's automatic scroll-position compensation ("scroll
-   anchoring") from kicking in when the navbar's height changes (e.g. the
-   top info bar collapsing on scroll). Without this, that compensation was
-   the second half of the flicker loop: navbar shrinks -> browser nudges
-   scrollY back -> navbar re-expands -> repeat. */
-.navbar {
-  overflow-anchor: none;
-}
-
-/* Every anchor target (#home, #about, #academics, etc.) leaves room
-   for the sticky navbar instead of tucking right underneath it. */
 section[id],
 main[id],
 div[id] {
@@ -38,10 +26,11 @@ div[id] {
 
 @media (max-width: 768px) {
   :root {
-    --mr-navbar-height: 90px; /* top info bar is hidden below 768px */
+    --mr-navbar-height: 90px;
   }
 }
 
+/* ---------- NAVBAR CONTAINER ---------- */
 .navbar {
   position: sticky;
   top: 0;
@@ -49,29 +38,34 @@ div[id] {
   width: 100%;
   background: #ffffff;
   border-bottom: 1px solid var(--mr-line);
-  transition: box-shadow 0.3s ease;
+  transition: box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  overflow-anchor: none;
 }
 
 .navbar--scrolled {
-  box-shadow: 0 8px 24px rgba(36, 20, 23, 0.08);
+  box-shadow: 0 10px 30px rgba(36, 20, 23, 0.06);
 }
 
-/* ---------- TOP INFORMATION STRIP ---------- */
+/* ---------- TOP STRIP ---------- */
 .navbar__top-bar {
   background: var(--mr-red);
   color: #ffffff;
-  font-family: Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   font-size: 0.78rem;
-  padding: 10px 0;
   overflow: hidden;
   max-height: 40px;
-  transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.25s ease;
+  padding: 10px 0;
+  opacity: 1;
+  transition: max-height 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), 
+              padding 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), 
+              opacity 0.2s ease;
 }
 
 .navbar--scrolled .navbar__top-bar {
   max-height: 0;
   padding: 0;
   opacity: 0;
+  pointer-events: none;
 }
 
 .navbar__top-inner {
@@ -85,13 +79,13 @@ div[id] {
 
 .navbar__top-info {
   display: flex;
-  gap: 20px;
+  gap: 24px;
 }
 
 .info-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   white-space: nowrap;
 }
 
@@ -104,61 +98,60 @@ div[id] {
 
 .navbar__top-socials {
   display: flex;
-  gap: 12px;
+  gap: 16px;
 }
 
 .navbar__top-socials a {
   color: #ffffff;
   display: flex;
   align-items: center;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .navbar__top-socials a:hover {
-  transform: translateY(-2px);
-  opacity: 0.85;
+  opacity: 0.8;
+  transform: translateY(-1px);
 }
 
 .navbar__top-socials svg {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   fill: currentColor;
 }
 
-/* ---------- INNER NAV CORE HOLDER ---------- */
+/* ---------- MAIN NAVBAR ROW ---------- */
 .navbar__inner {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 12px 24px;
+  padding: 16px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: padding 0.3s ease;
+  transition: padding 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .navbar--scrolled .navbar__inner {
-  padding: 8px 24px;
+  padding: 12px 24px;
 }
 
 .navbar__brand {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
   text-decoration: none;
   flex-shrink: 0;
-  padding-right: 20px;
+  padding-right: 24px;
   border-right: 1px solid var(--mr-line);
 }
 
 .navbar__logo-wrap {
-  width: 65px;
-  height: 65px;
-  transition: width 0.3s ease, height 0.3s ease;
+  width: 60px;
+  height: 60px;
+  transition: transform 0.3s ease;
 }
 
 .navbar--scrolled .navbar__logo-wrap {
-  width: 50px;
-  height: 50px;
+  transform: scale(0.85);
 }
 
 .navbar__logo {
@@ -175,138 +168,121 @@ div[id] {
 .navbar__title {
   font-family: Arial, sans-serif;
   font-weight: 900;
-  font-size: 1.4rem;
+  font-size: 1.35rem;
   color: var(--mr-red);
-  letter-spacing: -0.5px;
+  letter-spacing: -0.3px;
   line-height: 1.1;
 }
 
 .navbar__subtitle {
   font-family: Arial, sans-serif;
   font-weight: 700;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: var(--mr-red);
   line-height: 1.2;
 }
 
 .navbar__tagline {
   font-family: Arial, sans-serif;
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 700;
   color: var(--mr-ink);
-  letter-spacing: 0.5px;
-  margin-top: 2px;
-  transition: max-height 0.3s ease, opacity 0.3s ease;
+  letter-spacing: 0.8px;
+  margin-top: 3px;
 }
 
-/* ---------- CONTROLLED MULTI-ELEMENT NAV CONTAINER ---------- */
+/* ---------- NAVIGATION LINKS ---------- */
 .navbar__links {
-  position: relative;
   display: flex;
   align-items: center;
   margin-left: auto;
-  margin-right: 16px;
+  margin-right: 24px;
+  height: 100%;
 }
 
 .navbar__item {
   position: relative;
-  border-right: 1px solid #eeeeee;
-}
-
-.navbar__item:last-of-type {
-  border-right: none;
+  display: flex;
+  align-items: center;
+  height: 100%;
 }
 
 .navbar__link {
-  position: relative;
-  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-decoration: none;
-  color: #444444;
-  padding: 6px 16px;
-  border-bottom: 3px solid transparent;
+  color: var(--mr-gray);
+  padding: 12px 20px;
+  font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  transition: color 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
 }
 
 .nav-icon {
-  width: 22px;
-  height: 22px;
-  fill: #444444;
-  margin-bottom: 6px;
-  transition: fill 0.2s ease, transform 0.2s ease;
+  width: 20px;
+  height: 20px;
+  fill: var(--mr-gray);
+  margin-bottom: 4px;
+  transition: fill 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .navbar__link-label {
-  font-family: Arial, sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.5px;
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
 }
 
 .dropdown-arrow {
-  font-size: 0.55rem;
+  font-size: 0.5rem;
   transition: transform 0.25s ease;
 }
 
-.navbar__item:hover .dropdown-arrow,
-.navbar__item:focus-within .dropdown-arrow {
-  transform: rotate(180deg);
+/* ---------- ADVANCED MICRO-INTERACTION HOVER ---------- */
+.navbar__link::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--mr-red);
+  transform: translateX(-50%);
+  transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  will-change: width;
 }
 
-.navbar__link:hover,
+.navbar__link:hover {
+  color: var(--mr-red);
+}
+
+.navbar__link:hover .nav-icon {
+  fill: var(--mr-red);
+}
+
+.navbar__link:hover::after {
+  width: 60%;
+}
+
+/* Active State Styles */
 .navbar__link--active {
   color: var(--mr-red);
 }
 
-.navbar__link:hover .nav-icon,
 .navbar__link--active .nav-icon {
   fill: var(--mr-red);
 }
 
-.navbar__link--active .nav-icon {
-  animation: icon-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@keyframes icon-pop {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.22); }
-  100% { transform: scale(1); }
-}
-
-/* sliding "you are here" indicator — glides between tabs */
-.navbar__indicator {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  height: 3px;
-  border-radius: 3px 3px 0 0;
+.navbar__link--active::after {
+  width: 60%;
   background: linear-gradient(90deg, var(--mr-red-dark), var(--mr-red));
-  transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1),
-    width 0.45s cubic-bezier(0.65, 0, 0.35, 1),
-    opacity 0.2s ease;
-  pointer-events: none;
-  will-change: transform, width;
-  z-index: 1;
 }
 
-/* soft highlight pill that trails the cursor across tabs */
-.navbar__hover-pill {
-  position: absolute;
-  left: 0;
-  top: 6px;
-  bottom: 6px;
-  border-radius: 10px;
-  background: var(--mr-red-soft);
-  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
-    width 0.28s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.2s ease;
-  pointer-events: none;
-  will-change: transform, width;
-  z-index: 0;
+.navbar__item:hover .dropdown-arrow {
+  transform: rotate(180deg);
 }
 
 /* ---------- dropdown panels ---------- */
@@ -314,21 +290,20 @@ div[id] {
   position: absolute;
   top: 100%;
   left: 50%;
-  transform: translateX(-50%) translateY(6px);
-  min-width: 220px;
+  transform: translateX(-50%) translateY(8px);
+  min-width: 230px;
   background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 20px 40px rgba(36, 20, 23, 0.16);
-  padding: 10px;
-  margin-top: 6px;
+  border-radius: 8px;
+  box-shadow: 0 12px 30px rgba(24, 20, 20, 0.1);
+  border: 1px solid var(--mr-line);
+  padding: 8px;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
   z-index: 50;
 }
 
-.navbar__item:hover .navbar__dropdown,
-.navbar__item:focus-within .navbar__dropdown {
+.navbar__item:hover .navbar__dropdown {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
@@ -336,71 +311,44 @@ div[id] {
 
 .navbar__dropdown-item {
   display: block;
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-family: Arial, sans-serif;
-  font-size: 0.82rem;
-  font-weight: 700;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
   color: var(--mr-ink);
   text-decoration: none;
-  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .navbar__dropdown-item:hover {
-  background: var(--mr-red-soft);
+  background-color: var(--mr-red-soft);
   color: var(--mr-red);
-  transform: translateX(3px);
 }
 
-/* ---------- RIGHT BUTTON ACTION ---------- */
+/* ---------- CALL TO ACTION BUTTON ---------- */
 .navbar__cta {
-  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   background: var(--mr-red);
   color: #ffffff;
   text-decoration: none;
-  font-family: Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
   font-weight: 700;
-  font-size: 0.8rem;
-  padding: 12px 20px;
-  border-radius: 6px;
+  font-size: 0.78rem;
+  letter-spacing: 0.5px;
+  padding: 10px 18px;
+  border-radius: 4px;
   flex-shrink: 0;
-  overflow: hidden;
-  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.navbar__cta::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -60%;
-  width: 40%;
-  height: 100%;
-  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
-  transform: skewX(-20deg);
-  transition: left 0.55s ease;
-}
-
-.navbar__cta:hover::after {
-  left: 130%;
+  transition: background-color 0.15s ease;
 }
 
 .navbar__cta:hover {
   background-color: var(--mr-red-dark);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 22px rgba(179, 18, 28, 0.3);
 }
 
-.navbar__cta-arrow {
-  transition: transform 0.2s ease;
-}
-
-.navbar__cta:hover .navbar__cta-arrow {
-  transform: translateX(4px);
-}
-
+/* ---------- BURGER MENU FOR TABLET/MOBILE ---------- */
 .navbar__burger {
   display: none;
   flex-direction: column;
@@ -408,34 +356,30 @@ div[id] {
   border: none;
   background: transparent;
   cursor: pointer;
+  padding: 4px;
 }
 
 .navbar__burger span {
   display: block;
-  height: 3px;
-  width: 28px;
-  background: var(--mr-red);
+  height: 2px;
+  width: 24px;
+  background: var(--mr-ink);
   border-radius: 2px;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition: transform 0.25s ease, opacity 0.25s ease;
 }
 
-.navbar__burger--open span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+.navbar__burger--open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
 .navbar__burger--open span:nth-child(2) { opacity: 0; }
-.navbar__burger--open span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+.navbar__burger--open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-/* ---------- PROGRESS BAR ---------- */
-.navbar__progress {
-  display: none;
-}
-
-/* ---------- MOBILE OVERLAY ---------- */
+/* ---------- MOBILE OVERLAY & INTERACTIVE CONTAINER ---------- */
 .navbar__overlay {
   position: fixed;
   inset: 0;
-  background: rgba(36, 20, 23, 0.45);
+  background: rgba(36, 20, 23, 0.3);
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition: opacity 0.25s ease, visibility 0.25s;
   z-index: 90;
 }
 
@@ -444,25 +388,22 @@ div[id] {
   visibility: visible;
 }
 
-/* ---------- MOBILE DRAWER ----------
-   FIX: hidden by default on every screen size. Previously this had NO
-   base rule outside the max-width:1240px media query, so on desktop
-   widths the <div> fell back to normal block flow and dumped every
-   nav link (plus all submenu items) as unstyled stacked text right
-   under the header. Setting display:none here, then overriding it
-   back to flex inside the media query below, fixes that. */
 .navbar__mobile {
   display: none;
 }
 
-/* ---------- MOBILE OVERLAY ---------- */
-
 /* ---------- RESPONSIVE MEDIA BREAKPOINTS ---------- */
 @media (max-width: 1240px) {
-  .navbar__links { display: none; }
-  .navbar__cta { display: none; }
-  .navbar__brand { border-right: none; }
-  .navbar__burger { display: flex; }
+  .navbar__links, 
+  .navbar__cta { 
+    display: none; 
+  }
+  .navbar__brand { 
+    border-right: none; 
+  }
+  .navbar__burger { 
+    display: flex; 
+  }
 
   .navbar__mobile {
     display: flex;
@@ -475,46 +416,37 @@ div[id] {
     border-top: 1px solid var(--mr-line);
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.35s ease-out;
-    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
+    transition: max-height 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
     z-index: 95;
   }
 
   .navbar__mobile--open {
-    max-height: 80vh;
+    max-height: 85vh;
     overflow-y: auto;
   }
 
   .navbar__mobile-item {
     border-bottom: 1px solid #f9f9f9;
-    opacity: 0;
-    transform: translateX(-16px);
-    transition: opacity 0.35s ease, transform 0.35s ease;
-  }
-
-  .navbar__mobile--open .navbar__mobile-item {
-    opacity: 1;
-    transform: translateX(0);
   }
 
   .navbar__mobile-link-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-right: 20px;
   }
 
   .navbar__mobile-link {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 14px 24px;
+    padding: 16px 24px;
     text-decoration: none;
     color: var(--mr-ink);
-    font-family: Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
     font-weight: 700;
+    font-size: 0.9rem;
     flex: 1;
-    transition: color 0.2s ease;
   }
 
   .navbar__mobile-link--active {
@@ -522,8 +454,8 @@ div[id] {
   }
 
   .navbar__mobile-link svg {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     fill: currentColor;
     flex-shrink: 0;
   }
@@ -532,10 +464,10 @@ div[id] {
     border: none;
     background: transparent;
     color: var(--mr-gray);
-    font-size: 0.7rem;
-    padding: 8px;
+    font-size: 0.65rem;
+    padding: 16px 24px;
     cursor: pointer;
-    transition: transform 0.3s ease, color 0.2s ease;
+    transition: transform 0.2s ease;
   }
 
   .navbar__mobile-chevron--open {
@@ -546,51 +478,42 @@ div[id] {
   .navbar__mobile-submenu {
     max-height: 0;
     overflow: hidden;
-    padding-left: 52px;
-    transition: max-height 0.3s ease;
+    padding-left: 54px;
+    background-color: #fafafa;
+    transition: max-height 0.25s ease-out;
   }
 
   .navbar__mobile-submenu--open {
-    max-height: 300px;
+    max-height: 250px;
   }
 
   .navbar__mobile-submenu a {
     display: block;
-    padding: 10px 0;
-    font-family: Arial, sans-serif;
+    padding: 12px 0;
+    font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
     font-size: 0.85rem;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--mr-gray);
     text-decoration: none;
-    transition: color 0.2s ease, transform 0.2s ease;
   }
 
   .navbar__mobile-submenu a:hover {
     color: var(--mr-red);
-    transform: translateX(3px);
   }
 }
 
 @media (max-width: 768px) {
-  .navbar__top-bar { display: none; }
-  .navbar__tagline { display: none; }
-  .navbar__title { font-size: 1.15rem; }
-  .navbar__subtitle { font-size: 0.72rem; }
+  .navbar__top-bar,
+  .navbar__tagline { 
+    display: none; 
+  }
+  .navbar__title { font-size: 1.1rem; }
+  .navbar__subtitle { font-size: 0.7rem; }
+  .navbar__brand { gap: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .navbar,
-  .navbar__top-bar,
-  .navbar__inner,
-  .navbar__logo-wrap,
-  .navbar__indicator,
-  .navbar__hover-pill,
-  .navbar__dropdown,
-  .navbar__cta::after,
-  .navbar__mobile-item,
-  .nav-icon,
-  .dropdown-arrow,
-  .navbar__burger span {
+  * {
     transition: none !important;
     animation: none !important;
   }
